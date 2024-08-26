@@ -1,24 +1,32 @@
 package uce.edu.ec.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
+@Table(name = "task_rest")
 public class TaskRest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String description;
     private String status;
-    //mensaje para pendiente o completo
-    // "pending" or "completed"
-    private LocalDateTime createdAt;
+    private LocalDate creationDate;
+
+    public TaskRest() {
+        this.creationDate = LocalDate.now();
+    }
+
+    public TaskRest(String title, String description, String status) {
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.creationDate = LocalDate.now();
+    }
 
     public Long getId() {
         return id;
@@ -52,11 +60,11 @@ public class TaskRest {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDate getCreationDate() {
+        return creationDate;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreationDate(LocalDate creationDate) {
+        this.creationDate = creationDate;
     }
 }

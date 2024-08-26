@@ -2,71 +2,50 @@ package uce.edu.ec.demo.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import uce.edu.ec.demo.model.TaskRest;
 import uce.edu.ec.demo.service.TaskService;
 
 import java.util.List;
+import java.util.Optional;
 
-@Controller
-@RequestMapping("/tasks")
+@RestController
+@RequestMapping("/apirest/task_rest")
 public class TaskController {
 
     @Autowired
     private TaskService taskService;
 
     @PostMapping
-    @ResponseBody
-    public ResponseEntity<TaskRest> createTask(@RequestBody TaskRest taskRest) {
-        try {
-            TaskRest createdTask = taskService.createTask(taskRest);
-            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/{id}")
-    @ResponseBody
-    public ResponseEntity<TaskRest> getTask(@PathVariable Long id) {
-        Optional<TaskRest> task = taskService.getTask(id);
-        return task.map(t -> new ResponseEntity<>(t, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public TaskRest createTask(@RequestBody TaskRest task) {
+        return taskService.createTask(task);
     }
 
     @GetMapping
-    @ResponseBody
-    public ResponseEntity<List<TaskRest>> getAllTasks() {
-        List<TaskRest> tasks = taskService.getAllTasks();
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    public List<TaskRest> getAllTasks() {
+        return taskService.getAllTasks();
     }
 
-    @GetMapping("/status/{status}")
-    @ResponseBody
-    public ResponseEntity<List<TaskRest>> getTasksByStatus(@PathVariable String status) {
-        List<TaskRest> tasks = taskService.getTasksByStatus(status);
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskRest> getTask(@PathVariable Long id) {
+        return taskService.getTask(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/status")
+    public List<TaskRest> getTasksByStatus(@RequestParam String status) {
+        return taskService.getTasksByStatus(status);
     }
 
     @PutMapping("/{id}")
-    @ResponseBody
-    public ResponseEntity<TaskRest> updateTask(@PathVariable Long id, @RequestBody TaskRest taskDetails) {
-        try {
-            TaskRest updatedTask = taskService.updateTask(id, taskDetails);
-            return new ResponseEntity<>(updatedTask, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public TaskRest updateTask(@PathVariable Long id, @RequestBody TaskRest taskDetails) {
+        return taskService.updateTask(id, taskDetails);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseBody
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        try {
-            taskService.deleteTask(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public void deleteTask(@PathVariable Long id) {
+        taskService.deleteTask(id);
     }
 }
